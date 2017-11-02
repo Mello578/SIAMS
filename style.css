@@ -12,7 +12,7 @@ body {
 
 .content{
     text-align: center;
-    height: 80%;
+    height: auto;
 }
 
 .workSpace{
@@ -29,4 +29,34 @@ body {
     border: 1px solid #414354;
     margin-top: 85px;
     margin-bottom: 45px;
+    -webkit-transition: all 0.8s ease-in-out;
+    -moz-transition: all 0.8s ease-in-out;
+    -o-transition: all 0.8s ease-in-out;
+    transition: all 0.8s ease-in-out;
+}
+
+.buttonCont{
+    display: flex;
+    -webkit-justify-content: center; /* Safari */
+    justify-content: center;
+    margin-bottom: 45px;
+}
+
+.buttons{
+    width: 100px;
+    height: 97px;
+    margin: 0 20px;
+}
+
+.butArrow{
+background-image: url("img/arrow.png");
+}
+
+
+.butTurnLeft{
+background-image: url("img/left.png");
+}
+
+.butTurnRight{
+background-image: url("img/right.png");
 }
