@@ -5,6 +5,7 @@
 const canvas = document.getElementById('canvasDrawing');
 const ctx = canvas.getContext('2d');
 let arrayPaint = [];
+let newArrayPaint = [];
 
 const buttonArrow = document.getElementById('buttonArrow');
 const buttonTurnLeft = document.getElementById('buttonTurnLeft');
@@ -79,6 +80,8 @@ function rotate(side) {
             }
         }, 8.8);
     }
+    angleRotate === 360 || angleRotate === -360 ? angleRotate = 0 : angleRotate;
+
 }
 
 let painted = false;
@@ -126,12 +129,56 @@ function draw(btn) {
                 ctx.lineWidth = 2;
                 rectX = event.offsetX;
                 rectY = event.offsetY;
+                if (arrayPaint.length) {
+                    for (let key in arrayPaint) {
+                        let coord = arrayPaint[key];
+                        let newX, newY, newW, newH;
+                        switch (angleRotate) {
+                            case -270:
+                            case 90:
+                                newX = canvas.width - coord.y;
+                                newY = coord.x;
+                                newW = canvas.width - coord.h;
+                                newH = coord.w;
+                                break;
+                            case -180:
+                            case 180:
+                                newX = canvas.width - coord.x;
+                                newY = canvas.height - coord.y;
+                                newW = canvas.width - coord.w;
+                                newH = canvas.height - coord.h;
+                                break;
+                            case -90:
+                            case 270:
+                                newX = coord.y;
+                                newY = canvas.height - coord.x;
+                                newW = coord.h;
+                                newH = canvas.height - coord.w;
+                                break;
+                            default:
+                                newX=coord.x;
+                                newY=coord.y;
+                                newW=coord.w;
+                                newH=coord.h;
+                                break;
+                        }
+                        let newCoord = {
+                            x: newX,
+                            y: newY,
+                            w: newW,
+                            h: newH
+                        };
+                        newArrayPaint.push(newCoord);
+                    }
+                    angleRotate = 0;
+                    arrayPaint = newArrayPaint;
+                    newArrayPaint = [];
+                }
                 arrowCoordinates = true;
                 canvas.onmousemove = function (e) {
                     if (arrowCoordinates) {
                         rectW = e.offsetX == undefined ? e.layerX : e.offsetX;
                         rectH = e.offsetY == undefined ? e.layerY : e.offsetY;
-                        console.log(rectW, rectH)
                         ctx.clearRect(0, 0, canvas.width, canvas.height);
                         ctx.closePath();
                         paint(rectX, rectY, rectW, rectH);
