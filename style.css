@@ -23,8 +23,6 @@ body {
 }
 
 .drawingToolbar{
-    width: 600px;
-    height: 600px;
     background: white;
     border: 1px solid #414354;
     margin-top: 85px;
@@ -52,11 +50,25 @@ body {
 background-image: url("img/arrow.png");
 }
 
+.butArrow:hover{
+    cursor: pointer;
+    margin-top: -2px;
+}
 
 .butTurnLeft{
 background-image: url("img/left.png");
 }
 
+.butTurnLeft:hover{
+    cursor: pointer;
+    margin-top: -2px;
+}
+
 .butTurnRight{
 background-image: url("img/right.png");
+}
+
+.butTurnRight:hover{
+    cursor: pointer;
+    margin-top: -2px;
 }
