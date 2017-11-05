@@ -21,7 +21,7 @@ let activeButton = '';
 let currentImgButton;
 let interval;
 
-//защита от многократных нажатий на кнопки
+//защита от эпилептичных нажатий на кнопки
 function stopButtonOn() {
     return !(imgActiveButton);
 }
@@ -58,7 +58,7 @@ function buttonOff(currentButton, noActiveButton) {
     imgActiveButton = '';
 }
 
-function rotateTime(angle) {
+function rotateObjects(angle) {
     ctx.save();
     ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.rotate(inRad(angle));
@@ -73,7 +73,7 @@ function rotate(side) {
         buttonOn(side);
         interval = setInterval(() => {
             side === 'left' ? angleRotate -= 1 : angleRotate += 1;
-            rotateTime(angleRotate);
+            rotateObjects(angleRotate);
             if (!(angleRotate % 90 || angleRotate % -90)) {
                 clearInterval(interval);
                 buttonOff(activeButton, currentImgButton);
@@ -156,10 +156,10 @@ function draw(btn) {
                                 newH = canvas.height - coord.w;
                                 break;
                             default:
-                                newX=coord.x;
-                                newY=coord.y;
-                                newW=coord.w;
-                                newH=coord.h;
+                                newX = coord.x;
+                                newY = coord.y;
+                                newW = coord.w;
+                                newH = coord.h;
                                 break;
                         }
                         let newCoord = {
@@ -179,8 +179,17 @@ function draw(btn) {
                     if (arrowCoordinates) {
                         rectW = e.offsetX == undefined ? e.layerX : e.offsetX;
                         rectH = e.offsetY == undefined ? e.layerY : e.offsetY;
+                        let coordA = {
+                            a1: rectX,
+                            a2: rectY
+                        };
+                        let coordB = {
+                            b1: rectW,
+                            b2: rectH
+                        }
                         ctx.clearRect(0, 0, canvas.width, canvas.height);
                         ctx.closePath();
+                        arrowhead(coordA, coordB);
                         paint(rectX, rectY, rectW, rectH);
                         paintAllFigure();
                         canvas.onclick = () => {
@@ -196,3 +205,66 @@ function draw(btn) {
     }
 }
 
+function paintArrow(B, C, K) {
+    ctx.beginPath();
+    ctx.moveTo(B.b1, B.b2);
+    ctx.lineTo(C.c1, C.c2);
+    ctx.lineTo(K.k1, K.k2);
+    ctx.fill();
+}
+
+function arrowhead(A, B) {
+let C = baseOfTheArrow(A, B).C;
+let K = baseOfTheArrow(A, B).K;
+paintArrow(B, C, K);
+}
+
+function arrowLength(A, B) {
+    let h1 = 0.8 * B.b1 + 0.2 * A.a1;
+    let h2 = 0.8 * B.b2 + 0.2 * A.a2;
+    let f1 = 0.6 * B.b1 + 0.4 * A.a1;
+    let f2 = 0.6 * B.b2 + 0.4 * A.a2;
+    return {
+        h1: h1,
+        h2: h2,
+        f1: f1,
+        f2: f2
+    }
+}
+
+function baseOfTheArrow(A, B) {
+
+    let H = {
+        h1: arrowLength(A, B).h1,
+        h2: arrowLength(A, B).h2
+    };
+    let F = {
+        f1: arrowLength(A, B).f1,
+        f2: arrowLength(A, B).f2
+    };
+
+    let lengthHB = Math.sqrt(Math.pow((B.b1 - H.h1), 2) + Math.pow((B.b2 - H.h2), 2));  // |HB|
+    let lengthHC = lengthHB / 2;
+    let vectorFB = {
+        fb1: B.b1 - F.f1,
+        fb2: B.b2 - F.f2
+    };
+
+    let l = Math.sqrt(Math.pow(vectorFB.fb1, 2) + Math.pow(vectorFB.fb2, 2));
+    let HC = {
+        hc1: (-vectorFB.fb2*lengthHC) / l,
+        hc2: (vectorFB.fb1*lengthHC) / l
+    }
+    let C = {
+        c1: H.h1 + HC.hc1,
+        c2: H.h2 + HC.hc2
+    }
+    let K = {
+        k1: H.h1 - HC.hc1,
+        k2: H.h2 - HC.hc2
+    }
+    return {
+        C: C,
+        K: K
+    }
+}
