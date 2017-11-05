@@ -209,7 +209,7 @@ function draw(btn) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         paintAllFigure();
     }
-    if (painted && stopButtonOn()) {
+    if (painted && (stopButtonOn() || imgActiveButton === arrowOn)) {
         buttonOn(btn);
         if (canvas.getContext) {
             ctx.fillStyle = '#000000';
@@ -241,10 +241,10 @@ function draw(btn) {
                             canvas.onclick = () => {
                                 if (painted) {
                                     ctx.closePath();
-                                    stopPaint();
-                                    buttonOff(activeButton, currentImgButton);
                                     addCoordinates(coordA, coordB);
+                                    stopPaint();
                                     drowed = 0;
+                                    draw(btn);
                                 }
                             }
                         }
