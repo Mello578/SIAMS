@@ -21,6 +21,11 @@ let activeButton = '';
 let currentImgButton;
 let interval;
 
+let Arrow = function (A, B) {
+    this.A = A;
+    this.B = B;
+};
+
 //защита от эпилептичных нажатий на кнопки
 function stopButtonOn() {
     return !(imgActiveButton);
@@ -78,7 +83,7 @@ function rotate(side) {
                 clearInterval(interval);
                 buttonOff(activeButton, currentImgButton);
             }
-        }, 8.8);
+        }, 8.89);
     }
     angleRotate === 360 || angleRotate === -360 ? angleRotate = 0 : angleRotate;
 }
@@ -88,10 +93,10 @@ let arrowCoordinates = false;
 let rectX = 0, rectY = 0, rectW = 0, rectH = 0;
 let coordA, coordB;
 
-function paint(A, B) {
+function paint(coordinates) {
     ctx.beginPath();
-    ctx.moveTo(A.a1, A.a2);
-    ctx.lineTo(B.b1, B.b2);
+    ctx.moveTo(coordinates.A.a1, coordinates.A.a2);
+    ctx.lineTo(coordinates.B.b1, coordinates.B.b2);
     ctx.stroke();
 }
 
@@ -99,8 +104,8 @@ function paintAllFigure() {
     if (arrayPaint.length) {
         for (let key in arrayPaint) {
             let coord = arrayPaint[key];
-            paint(coord.A, coord.B);
-            arrowhead(coord.A, coord.B);
+            paint(coord);
+            arrowhead(coord);
         }
     }
 }
@@ -110,22 +115,14 @@ function stopPaint() {
     painted = false;
 }
 
-function addCoordinates(A, B) {
-    let coordinates = {
-        A: {
-            a1: A.a1,
-            a2: A.a2
-        },
-        B: {
-            b1: B.b1,
-            b2: B.b2
-        }
-    };
+function addCoordinates(coordinates) {
     arrayPaint.push(coordinates);
 }
 
 function rotatePaint() {
     if (arrayPaint.length) {
+        const fieldWidth = canvas.width, fieldHeight = canvas.height;
+
         for (let key in arrayPaint) {
             let item = arrayPaint[key];
             let coordinates;
@@ -134,11 +131,11 @@ function rotatePaint() {
                 case 90:
                     coordinates = {
                         newA: {
-                            a1: canvas.width - item.A.a2,
+                            a1: fieldWidth - item.A.a2,
                             a2: item.A.a1
                         },
                         newB: {
-                            b1: canvas.width - item.B.b2,
+                            b1: fieldWidth - item.B.b2,
                             b2: item.B.b1
                         }
                     };
@@ -147,12 +144,12 @@ function rotatePaint() {
                 case 180:
                     coordinates = {
                         newA: {
-                            a1: canvas.width - item.A.a1,
-                            a2: canvas.height - item.A.a2
+                            a1: fieldWidth - item.A.a1,
+                            a2: fieldHeight - item.A.a2
                         },
                         newB: {
-                            b1: canvas.width - item.B.b1,
-                            b2: canvas.height - item.B.b2
+                            b1: fieldWidth - item.B.b1,
+                            b2: fieldHeight - item.B.b2
                         }
                     };
                     break;
@@ -161,11 +158,11 @@ function rotatePaint() {
                     coordinates = {
                         newA: {
                             a1: item.A.a2,
-                            a2: canvas.height - item.A.a1
+                            a2: fieldHeight - item.A.a1
                         },
                         newB: {
                             b1: item.B.b2,
-                            b2: canvas.height - item.B.b1
+                            b2: fieldHeight - item.B.b1
                         }
                     };
                     break;
@@ -182,10 +179,8 @@ function rotatePaint() {
                     };
                     break;
             }
-            let newCoord = {
-                A: coordinates.newA,
-                B: coordinates.newB,
-            };
+
+            let newCoord = new Arrow(coordinates.newA, coordinates.newB);
             newArrayPaint.push(newCoord);
         }
         angleRotate = 0;
@@ -233,15 +228,16 @@ function draw(btn) {
                                 b1: rectW,
                                 b2: rectH
                             };
+                            let CurrentCoordinates = new Arrow(coordA, coordB);
                             ctx.clearRect(0, 0, canvas.width, canvas.height);
                             ctx.closePath();
-                            arrowhead(coordA, coordB);
-                            paint(coordA, coordB);
+                            arrowhead(CurrentCoordinates);
+                            paint(CurrentCoordinates);
                             paintAllFigure();
                             canvas.onclick = () => {
                                 if (painted) {
                                     ctx.closePath();
-                                    addCoordinates(coordA, coordB);
+                                    addCoordinates(CurrentCoordinates);
                                     stopPaint();
                                     drowed = 0;
                                     draw(btn);
@@ -265,19 +261,19 @@ function paintArrow(B, C, K) {
     ctx.fill();
 }
 
-function arrowhead(A, B) {
-    let C = baseOfTheArrow(A, B).C;
-    let K = baseOfTheArrow(A, B).K;
-    paintArrow(B, C, K);
+function arrowhead(coordinates) {
+    let C = baseOfTheArrow(coordinates).C;
+    let K = baseOfTheArrow(coordinates).K;
+    paintArrow(coordinates.B, C, K);
 }
 
-function arrowLength(A, B) {
+function arrowLength(coordinates) {
     let sizeArrow1 = 0.15;
     let sizeArrow2 = 0.3;
-    let h1 = (1 - sizeArrow1) * B.b1 + sizeArrow1 * A.a1;
-    let h2 = (1 - sizeArrow1) * B.b2 + sizeArrow1 * A.a2;
-    let f1 = (1 - sizeArrow2) * B.b1 + sizeArrow2 * A.a1;
-    let f2 = (1 - sizeArrow2) * B.b2 + sizeArrow2 * A.a2;
+    let h1 = (1 - sizeArrow1) * coordinates.B.b1 + sizeArrow1 * coordinates.A.a1;
+    let h2 = (1 - sizeArrow1) * coordinates.B.b2 + sizeArrow1 * coordinates.A.a2;
+    let f1 = (1 - sizeArrow2) * coordinates.B.b1 + sizeArrow2 * coordinates.A.a1;
+    let f2 = (1 - sizeArrow2) * coordinates.B.b2 + sizeArrow2 * coordinates.A.a2;
     return {
         h1: h1,
         h2: h2,
@@ -286,22 +282,22 @@ function arrowLength(A, B) {
     }
 }
 
-function baseOfTheArrow(A, B) {
+function baseOfTheArrow(coordinates) {
 
     let H = {
-        h1: arrowLength(A, B).h1,
-        h2: arrowLength(A, B).h2
+        h1: arrowLength(coordinates).h1,
+        h2: arrowLength(coordinates).h2
     };
     let F = {
-        f1: arrowLength(A, B).f1,
-        f2: arrowLength(A, B).f2
+        f1: arrowLength(coordinates).f1,
+        f2: arrowLength(coordinates).f2
     };
 
-    let lengthHB = Math.sqrt(Math.pow((B.b1 - H.h1), 2) + Math.pow((B.b2 - H.h2), 2));  // |HB|
+    let lengthHB = Math.sqrt(Math.pow((coordinates.B.b1 - H.h1), 2) + Math.pow((coordinates.B.b2 - H.h2), 2));  // |HB|
     let lengthHC = lengthHB / 2;
     let vectorFB = {
-        fb1: B.b1 - F.f1,
-        fb2: B.b2 - F.f2
+        fb1: coordinates.B.b1 - F.f1,
+        fb2: coordinates.B.b2 - F.f2
     };
 
     let l = Math.sqrt(Math.pow(vectorFB.fb1, 2) + Math.pow(vectorFB.fb2, 2));
